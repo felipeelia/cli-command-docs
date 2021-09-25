@@ -1,0 +1,13 @@
+{
+    "name": "felipeelia/cli-command-docs",
+    "type": "wp-cli-package",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "": "src/"
+        },
+        "files": [
+            "cli-command-docs-command.php"
+        ]
+    }
+}
