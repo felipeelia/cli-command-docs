@@ -24,6 +24,8 @@ class Cli_Command_Docs_Command extends WP_CLI_Command {
 	 * @param array $assoc_args Associative CLI args.
 	 */
 	public function __invoke( $args, $assoc_args ) {
+		putenv( 'WP_CLI_SUPPRESS_GLOBAL_PARAMS=true' );
+
 		$command_list = [ $args[0] ];
 		$command = WP_CLI::get_runner()->find_command_to_run( $command_list );
 
@@ -32,7 +34,9 @@ class Cli_Command_Docs_Command extends WP_CLI_Command {
 		echo ( isset( $assoc_args['custom-intro'] ) ) ? $assoc_args['custom-intro'] : $command->get_shortdesc();
 		echo "\n\n";
 
-		echo ( $command->longdesc ) ? $command->longdesc . "\n\n" : '';
+		$longdesc = $command->get_longdesc();
+
+		echo ( $longdesc ) ? $longdesc . "\n\n" : '';
 
 		$subcommands = $command->get_subcommands();
 		if ( isset( $assoc_args['remove'] ) ) {
@@ -41,7 +45,7 @@ class Cli_Command_Docs_Command extends WP_CLI_Command {
 				unset( $subcommands[ $subcommand ] );
 			}
 		}
-		
+
 		if ( isset( $assoc_args['custom-order'] ) ) {
 			$assoc_args['custom-order'] = explode( ',', $assoc_args['custom-order'] );
 			$ordered = array();
@@ -58,8 +62,8 @@ class Cli_Command_Docs_Command extends WP_CLI_Command {
 			$usage = trim( $subcommand->get_usage( '' ) );
 			echo "* `{$usage}` \n\n";
 			echo "\t{$subcommand->get_shortdesc()}";
-			
-			$longdesc = $subcommand->longdesc;
+
+			$longdesc = $subcommand->get_longdesc();
 			if ( false !== strpos( $longdesc, '## OPTIONS' ) ) {
 				$longdesc = substr( $longdesc, 0, strpos( $longdesc, '## OPTIONS' ) );
 			}
@@ -68,7 +72,7 @@ class Cli_Command_Docs_Command extends WP_CLI_Command {
 				echo "\n\n\t{$longdesc}";
 			}
 
-			preg_match_all( '/(.+?)[\r\n]+:([^\r\n]*)/', $subcommand->longdesc, $matches );
+			preg_match_all( '/(.+?)[\r\n]+:([^\r\n]*)/', $subcommand->get_longdesc(), $matches );
 			if ( ! empty( $matches[1] ) ) {
 				echo "\n";
 				foreach ( $matches[1] as $index => $parameter ) {
